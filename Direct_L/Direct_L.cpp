@@ -37,9 +37,10 @@ void SlidingWindow(const string& T,int *result, int l) {
 int main() {
     // 開始計時
     
-    for (int l = 4; l < 17; l++) {
+    for (int l = 4; l < 17; l+=4) {
 
         auto start1_time = std::chrono::high_resolution_clock::now();
+        clock_t start1 = clock();
         // 檔案名稱
         const char* filename1 = "dna_500M.txt";
         FILE* infile1;
@@ -71,25 +72,31 @@ int main() {
         fclose(infile1);
 
         auto end1_time = std::chrono::high_resolution_clock::now();
-
+        clock_t end1 = clock();
 
         int Tsize = strlen(T);  // 計算字串 T 的長度
 
         double at = 0;
         int distance = 0;
         int ans_sizes = Tsize - l + 1;
-        int* result = new int[ans_sizes];
+        int* result = (int*)malloc(ans_sizes * sizeof(int));
 
 
-        chrono::duration<double> readtime = end1_time - start1_time;
+        std::chrono::duration<double, std::milli> readtime = end1_time - start1_time;
+        double readtime1 = (static_cast<double>(end1 - start1) / CLOCKS_PER_SEC) * 1000;
+
+        
         std::chrono::high_resolution_clock::time_point distance_start, distance_end;
+        clock_t distance_start1, distance_end1;
         for (int j = 0; j < 1; j++) {
             // 開始計時
             distance_start = chrono::high_resolution_clock::now();
+            distance_start1 = clock();
             // 計算漢明距離
             SlidingWindow(T, result, l);
             // 結束計時
             distance_end = chrono::high_resolution_clock::now();
+            distance_end1 = clock();
       
             // 輸出結果
 
@@ -131,9 +138,12 @@ int main() {
         //for (int i = 0; i < ans_sizes; ++i) {// one substring
         //    cout << result[i] << " ";
         //}
-        chrono::duration<double> distance_time = distance_end - distance_start;
+        std::chrono::duration<double, std::milli> distance_time = distance_end - distance_start;
+        double distance_time1 = (static_cast<double>(distance_end1 - distance_start1) / CLOCKS_PER_SEC) * 1000;
+        printf("l= %2d, %f, %f\n", l, readtime.count(),distance_time.count());
+        printf("l= %2d, %f, %f\n", l, readtime1, distance_time1);
         printf("\n");
-        printf("%f %f\n", readtime.count(), distance_time.count());
+        free(result);
     }
     return 0;
 }
